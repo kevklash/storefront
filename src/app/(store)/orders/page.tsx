@@ -67,7 +67,7 @@ export default function OrdersPage() {
       <div className="space-y-4">
         {orders.map((order) => (
           <div key={order._id} className="border border-gray-200 rounded-xl p-5">
-            <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
               <div>
                 <p className="font-semibold text-sm text-black">{order.orderNumber}</p>
                 <p className="text-xs text-gray-600 mt-0.5">

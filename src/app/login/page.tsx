@@ -10,7 +10,7 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-2xl border border-gray-200 p-10 w-full max-w-sm text-center">
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 w-full max-w-sm text-center">
         <h1 className="text-2xl font-bold mb-2 text-black">Sign In</h1>
         <p className="text-black text-sm mb-8">Continue with your Google account</p>
         <button
@@ -34,7 +34,7 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="bg-white rounded-2xl border border-gray-200 p-10 w-full max-w-sm text-center">
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 w-full max-w-sm text-center">
           <h1 className="text-2xl font-bold mb-2">Sign In</h1>
         </div>
       </div>

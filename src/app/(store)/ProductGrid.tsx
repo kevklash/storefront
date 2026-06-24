@@ -6,7 +6,8 @@ async function getProducts(category?: string, search?: string) {
   if (category) params.set("category", category)
   if (search) params.set("search", search)
 
-  const base = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"
+  const base = process.env.NEXT_PUBLIC_BASE_URL
+    ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000")
   const res = await fetch(`${base}/api/products?${params}`, { next: { revalidate: 60 } })
   if (!res.ok) return { products: [], total: 0 }
   return res.json()
@@ -24,10 +25,10 @@ export default async function ProductGrid({
 
   return (
     <div>
-      <div className="flex gap-2 flex-wrap mb-6">
+      <div className="flex gap-2 overflow-x-auto pb-1 mb-6 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none]">
         <a
           href="/"
-          className={`px-3 py-1 rounded-full text-sm border transition-colors ${!category ? "bg-black text-white border-black" : "border-gray-300 text-gray-700 hover:border-gray-500 hover:text-black"}`}
+          className={`px-3 py-1 rounded-full text-sm border transition-colors shrink-0 ${!category ? "bg-black text-white border-black" : "border-gray-300 text-gray-700 hover:border-gray-500 hover:text-black"}`}
         >
           All
         </a>
@@ -35,7 +36,7 @@ export default async function ProductGrid({
           <a
             key={c}
             href={`/?category=${encodeURIComponent(c)}`}
-            className={`px-3 py-1 rounded-full text-sm border transition-colors ${category === c ? "bg-black text-white border-black" : "border-gray-300 text-gray-700 hover:border-gray-500 hover:text-black"}`}
+            className={`px-3 py-1 rounded-full text-sm border transition-colors shrink-0 ${category === c ? "bg-black text-white border-black" : "border-gray-300 text-gray-700 hover:border-gray-500 hover:text-black"}`}
           >
             {c}
           </a>

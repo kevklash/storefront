@@ -18,7 +18,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   if (!product) notFound()
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 lg:gap-16">
       <div className="space-y-3">
         {product.images.length > 0 ? (
           <>

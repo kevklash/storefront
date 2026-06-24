@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { Package, ShoppingBag, LayoutDashboard, ExternalLink, LogOut } from "lucide-react"
+import { Package, ShoppingBag, LayoutDashboard, ExternalLink, LogOut, Settings } from "lucide-react"
 import { signOutAction } from "@/app/actions/auth"
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
@@ -19,6 +19,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           </Link>
           <Link href="/admin/orders" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-900 hover:bg-gray-50 hover:text-black transition-colors">
             <ShoppingBag size={16} /> Orders
+          </Link>
+          <Link href="/admin/settings" className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gray-900 hover:bg-gray-50 hover:text-black transition-colors">
+            <Settings size={16} /> Settings
           </Link>
         </nav>
         <div className="p-3 border-t border-gray-100 space-y-1">

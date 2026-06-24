@@ -49,31 +49,31 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <button className="sm:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+        <button className="sm:hidden text-black" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
       {menuOpen && (
-        <div className="sm:hidden border-t border-gray-100 bg-white px-4 py-4 flex flex-col gap-4 text-sm font-medium">
-          <Link href="/" onClick={() => setMenuOpen(false)}>Shop</Link>
-          <Link href="/cart" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+        <div className="sm:hidden border-t border-gray-100 bg-white px-4 py-4 flex flex-col gap-4 text-sm font-medium text-gray-900">
+          <Link href="/" onClick={() => setMenuOpen(false)} className="text-gray-900 hover:text-black">Shop</Link>
+          <Link href="/cart" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-900 hover:text-black">
             <ShoppingCart size={16} /> Cart {itemCount > 0 && `(${itemCount})`}
           </Link>
           {isAdmin && (
-            <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
+            <Link href="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 text-gray-900 hover:text-black">
               <LayoutDashboard size={16} /> Admin Dashboard
             </Link>
           )}
           {session ? (
             <>
-              <Link href="/orders" onClick={() => setMenuOpen(false)}>My Orders</Link>
+              <Link href="/orders" onClick={() => setMenuOpen(false)} className="text-gray-900 hover:text-black">My Orders</Link>
               <form action={signOutAction}>
-                <button type="submit" className="text-left">Sign Out</button>
+                <button type="submit" className="text-left text-gray-900 hover:text-black">Sign Out</button>
               </form>
             </>
           ) : (
-            <button onClick={() => signInWithGoogle()} className="text-left flex items-center gap-2">
+            <button onClick={() => signInWithGoogle()} className="text-left flex items-center gap-2 text-gray-900 hover:text-black">
               <User size={16} /> Sign In with Google
             </button>
           )}
