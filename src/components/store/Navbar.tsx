@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react"
 import { signOutAction, signInWithGoogle } from "@/app/actions/auth"
 import { useState } from "react"
 
-export default function Navbar() {
+export default function Navbar({ storeName = "Storefront" }: { storeName?: string }) {
   const itemCount = useCartStore((s) => s.itemCount())
   const { data: session } = useSession()
   const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin"
@@ -17,7 +17,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-40 bg-white border-b border-gray-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
         <Link href="/" className="font-bold text-xl tracking-tight text-black">
-          STOREFRONT
+          {storeName.toUpperCase()}
         </Link>
 
         <div className="hidden sm:flex items-center gap-6 text-sm font-medium">

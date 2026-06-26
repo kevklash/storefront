@@ -4,7 +4,7 @@ import SiteSettings from "@/models/SiteSettings"
 
 export const dynamic = "force-dynamic"
 
-const ALLOWED_FIELDS = ["imageUrl", "headline", "subtitle", "ctaText", "ctaHref", "enabled"]
+const ALLOWED_FIELDS = ["storeName", "bgType", "imageUrl", "bgColor", "textColor", "headline", "subtitle", "ctaText", "ctaHref", "enabled"]
 
 export async function GET() {
   try {
@@ -12,7 +12,11 @@ export async function GET() {
     const settings = await SiteSettings.findOne({ key: "banner" }).lean()
     return NextResponse.json(
       settings ?? {
+        storeName: "Storefront",
+        bgType: "image",
         imageUrl: "",
+        bgColor: "#171717",
+        textColor: "#ffffff",
         headline: "New Arrivals",
         subtitle: "Discover the latest styles",
         ctaText: "Shop Now",

@@ -5,7 +5,10 @@ import SiteSettings from "@/models/SiteSettings"
 import MobileSearchToggle from "./MobileSearchToggle"
 
 type BannerConfig = {
+  bgType: "image" | "color"
   imageUrl: string
+  bgColor: string
+  textColor: string
   headline: string
   subtitle: string
   ctaText: string
@@ -14,7 +17,10 @@ type BannerConfig = {
 }
 
 const DEFAULT_CONFIG: BannerConfig = {
+  bgType: "image",
   imageUrl: "",
+  bgColor: "#171717",
+  textColor: "#ffffff",
   headline: "New Arrivals",
   subtitle: "Discover the latest styles",
   ctaText: "Shop Now",
@@ -28,36 +34,46 @@ async function getBannerConfig(): Promise<BannerConfig> {
   if (!doc) return DEFAULT_CONFIG
   const { _id, ...rest } = doc
   void _id
-  return { ...DEFAULT_CONFIG, ...rest }
+  const clean = Object.fromEntries(
+    Object.entries(rest).filter(([, v]) => v !== undefined && v !== null)
+  ) as Partial<BannerConfig>
+  return { ...DEFAULT_CONFIG, ...clean }
 }
 
 export default async function HeroBanner() {
   const config = await getBannerConfig()
   if (!config.enabled) return null
 
+  const isImageMode = config.bgType === "image"
+
   return (
-    <div className="relative w-full h-[65vh] min-h-[400px] overflow-hidden bg-neutral-900 flex items-center justify-center">
-      {config.imageUrl ? (
-        <Image
-          src={config.imageUrl}
-          alt="Hero banner"
-          fill
-          className="object-cover"
-          priority
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-stone-900" />
+    <div
+      className="relative w-full h-[65vh] min-h-[400px] overflow-hidden flex items-center justify-center"
+      style={isImageMode ? undefined : { backgroundColor: config.bgColor }}
+    >
+      {isImageMode && (
+        config.imageUrl ? (
+          <Image src={config.imageUrl} alt="Hero banner" fill className="object-cover" priority />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-stone-900" />
+        )
       )}
-      <div className="absolute inset-0 bg-black/40" />
-      <div className="relative z-10 text-center text-white px-6 max-w-2xl">
-        <p className="text-xs tracking-[0.3em] uppercase text-white/50 mb-4">Collection</p>
+      {isImageMode && <div className="absolute inset-0 bg-black/40" />}
+
+      <div className="relative z-10 text-center px-6 max-w-2xl" style={{ color: config.textColor }}>
+        <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ opacity: 0.5 }}>
+          Collection
+        </p>
         <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-none mb-4">
           {config.headline}
         </h1>
-        <p className="text-base sm:text-lg text-white/70 mb-8">{config.subtitle}</p>
+        <p className="text-base sm:text-lg mb-8" style={{ opacity: 0.7 }}>
+          {config.subtitle}
+        </p>
         <Link
           href={config.ctaHref}
-          className="inline-block bg-white text-black px-10 py-3 text-xs font-bold tracking-[0.2em] uppercase hover:bg-white/90 transition"
+          className="inline-block px-10 py-3 text-xs font-bold tracking-[0.2em] uppercase border hover:opacity-70 transition"
+          style={{ borderColor: config.textColor, color: config.textColor }}
         >
           {config.ctaText}
         </Link>
