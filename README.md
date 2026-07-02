@@ -1,36 +1,132 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Storefront
 
-## Getting Started
+E-commerce de ropa construido con Next.js 16, MongoDB, Stripe, Cloudinary y NextAuth v5.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework:** Next.js 16 (App Router, TypeScript)
+- **Base de datos:** MongoDB + Mongoose
+- **Auth:** NextAuth v5 — Google OAuth + email/contraseña
+- **Pagos:** Stripe Checkout
+- **Imágenes:** Cloudinary
+- **Email:** Resend
+- **Estado del carrito:** Zustand (localStorage)
+- **Estilos:** Tailwind CSS v4
+
+## Variables de entorno
+
+Crea un archivo `.env.local` en la raíz con las siguientes variables:
+
+```env
+# MongoDB
+MONGODB_URI=
+
+# NextAuth
+AUTH_SECRET=
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+NEXTAUTH_URL=http://localhost:3000
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+# Stripe
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+
+# Resend
+RESEND_API_KEY=
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Instalación y desarrollo
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Abre [http://localhost:3000](http://localhost:3000) en el navegador.
 
-## Learn More
+> **Nota de memoria:** El dev server requiere más memoria de lo habitual. Si encuentras errores de heap, usa:
+> ```bash
+> NODE_OPTIONS=--max-old-space-size=4096 npm run dev
+> ```
 
-To learn more about Next.js, take a look at the following resources:
+## Primer deploy — crear el admin inicial
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Con la base de datos vacía no existe ningún usuario admin. Antes de levantar la app en producción, corre el seed script una sola vez:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run seed:admin -- --email=tu@email.com --password=tupassword --name="Tu Nombre"
+```
 
-## Deploy on Vercel
+El script es seguro para correr múltiples veces:
+- Si ya existe un admin → no hace nada
+- Si el email existe sin rol admin → lo promueve a admin
+- Si no existe el usuario → lo crea con contraseña hasheada
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+A partir del primer admin, los demás se crean desde el panel en `/admin/admins`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Acceso al panel de administración
+
+1. Ve a `/login` e inicia sesión con email/contraseña (admins) o Google (clientes)
+2. El panel está en `/admin`
+3. El middleware en `proxy.ts` protege todas las rutas `/admin/*` y `/api/admin/*`
+
+## Estructura del proyecto
+
+```
+src/
+├── app/
+│   ├── (store)/          # Rutas de la tienda (clientes)
+│   ├── (admin)/          # Panel de administración
+│   ├── api/              # API routes
+│   ├── login/            # Página de login
+│   └── auth/redirect/    # Redirect post-login
+├── components/
+│   ├── store/            # Navbar, HeroBanner, SearchBar, etc.
+│   ├── admin/            # ProductForm
+│   └── ui/               # Button
+├── models/               # Mongoose models (Product, Order, User, SiteSettings)
+├── lib/                  # mongoose, cloudinary, stripe, resend, cart-store
+├── auth.ts               # Configuración NextAuth
+└── proxy.ts              # Middleware de protección de rutas admin
+scripts/
+└── seed-admin.mjs        # Script para crear el primer admin
+```
+
+## Funcionalidades principales
+
+### Tienda
+- Catálogo de productos con búsqueda y filtro por categoría
+- Página de detalle de producto con selección de talla/color
+- Carrito persistido en localStorage
+- Checkout con Stripe (pagos reales)
+- Email de confirmación de orden vía Resend
+
+### Panel de administración (`/admin`)
+- **Dashboard** — resumen de ventas, productos y órdenes recientes
+- **Products** — crear, editar y eliminar productos con imágenes en Cloudinary
+- **Orders** — ver y actualizar el estado de las órdenes
+- **Settings** — configurar el hero banner de la home (imagen o color sólido, color de texto, titular, CTA) y el nombre de la tienda
+- **Admins** — crear y listar usuarios administradores
+
+### Hero Banner
+Configurable desde `/admin/settings`:
+- Fondo: imagen (subida a Cloudinary) o color sólido
+- Color del texto configurable
+- Titular, subtítulo y botón CTA
+- Se puede deshabilitar sin eliminar la configuración
+
+## Webhook de Stripe
+
+Para recibir eventos de Stripe en desarrollo usa la Stripe CLI:
+
+```bash
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+```
+
+El webhook en `/api/webhooks/stripe` crea las órdenes y descuenta el stock al completarse un pago.

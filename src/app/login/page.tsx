@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import { signIn } from "next-auth/react"
 import { useSearchParams } from "next/navigation"
 
@@ -8,14 +8,44 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") ?? "/auth/redirect"
 
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  async function handleCredentials(e: React.FormEvent) {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        callbackUrl,
+        redirect: false,
+      })
+      if (res?.error) {
+        setError("Invalid email or password")
+      } else if (res?.url) {
+        window.location.href = res.url
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inputClass = "w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black"
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 w-full max-w-sm text-center">
-        <h1 className="text-2xl font-bold mb-2 text-black">Sign In</h1>
-        <p className="text-black text-sm mb-8">Continue with your Google account</p>
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 w-full max-w-sm">
+        <h1 className="text-2xl font-bold mb-1 text-black text-center">Sign In</h1>
+        <p className="text-gray-500 text-sm mb-8 text-center">Welcome back</p>
+
+        {/* Google */}
         <button
           onClick={() => signIn("google", { callbackUrl })}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-black hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-xl text-sm font-medium text-black hover:bg-gray-50 transition-colors mb-6"
         >
           <svg width="18" height="18" viewBox="0 0 18 18">
             <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
@@ -25,6 +55,46 @@ function LoginForm() {
           </svg>
           Continue with Google
         </button>
+
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-xs text-gray-400">or</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+
+        {/* Email / password */}
+        <form onSubmit={handleCredentials} className="space-y-3">
+          {error && (
+            <p className="text-red-600 text-xs bg-red-50 px-3 py-2 rounded-lg">{error}</p>
+          )}
+          <div>
+            <input
+              type="email"
+              required
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              required
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-black text-white rounded-xl py-2.5 text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+          >
+            {loading ? "Signing in…" : "Sign In"}
+          </button>
+        </form>
       </div>
     </div>
   )
@@ -35,7 +105,7 @@ export default function LoginPage() {
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-10 w-full max-w-sm text-center">
-          <h1 className="text-2xl font-bold mb-2">Sign In</h1>
+          <h1 className="text-2xl font-bold mb-2 text-black">Sign In</h1>
         </div>
       </div>
     }>
